@@ -82,9 +82,22 @@ def main():
         item["Languages"] = languages
         replaced += 1
 
+    # Меняем запись языка English на Russian в mLanguages (Name и Code)
+    mlanguages = data.get("m_Structure", {}).get("mSource", {}).get("mLanguages", [])
+    for lang in mlanguages:
+        if lang.get("Code") == "en" or lang.get("Name") == "English":
+            lang["Name"] = "Russian"
+            lang["Code"] = "ru"
+            print("В mLanguages запись English заменена на Russian (ru).", flush=True)
+            break
+
     print(f"Подставлено русских переводов: {replaced} из {len(terms)} терминов", flush=True)
+
+    # Пишем JSON и сохраняем экранирование тегов как в оригинале (\u003c для <, \u003e для >)
+    json_str = json.dumps(data, ensure_ascii=False, indent=2)
+    json_str = json_str.replace("<", "\\u003c").replace(">", "\\u003e")
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        f.write(json_str)
 
     print(f"Сохранено в: {out_path}", flush=True)
     return 0
